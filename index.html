@@ -846,21 +846,118 @@
         </div>
 
         <div id="contentAtletaResultado" class="hidden">
-          <h1 class="text-3xl md:text-4xl font-oswald font-bold mb-6">Cargar Resultado</h1>
-          <form id="formResultado" class="max-w-md space-y-4">
-            <select id="tipoBloque" class="w-full bg-kts-dark border border-white/20 rounded-lg px-4 py-3 text-white" required>
+          <h1 class="text-3xl md:text-4xl font-oswald font-bold mb-4">Cargar Resultado</h1>
+
+          <!-- Tabs de modo -->
+          <div class="flex gap-2 mb-6 bg-kts-card border border-white/10 rounded-xl p-1">
+            <button onclick="cambiarModoResultado('bloque')" id="tabResultadoBloque"
+                    class="flex-1 py-2 px-3 rounded-lg text-sm font-oswald font-bold uppercase transition-all bg-kts-gold text-black">
+              <i class="fas fa-stopwatch mr-1"></i> Bloque
+            </button>
+            <button onclick="cambiarModoResultado('ejercicio')" id="tabResultadoEjercicio"
+                    class="flex-1 py-2 px-3 rounded-lg text-sm font-oswald font-bold uppercase transition-all text-gray-400 hover:text-white">
+              <i class="fas fa-dumbbell mr-1"></i> Ejercicio
+            </button>
+            <button onclick="cambiarModoResultado('benchmark')" id="tabResultadoBenchmark"
+                    class="flex-1 py-2 px-3 rounded-lg text-sm font-oswald font-bold uppercase transition-all text-gray-400 hover:text-white">
+              <i class="fas fa-trophy mr-1"></i> Benchmark
+            </button>
+          </div>
+
+          <!-- MODO BLOQUE -->
+          <div id="modoResultadoBloque" class="max-w-md space-y-4">
+            <select id="tipoBloque" class="w-full bg-kts-dark border border-white/20 rounded-lg px-4 py-3 text-white">
               <option value="">Seleccionar bloque...</option>
             </select>
-            <select id="tipoResultado" class="w-full bg-kts-dark border border-white/20 rounded-lg px-4 py-3 text-white" required>
+            <select id="tipoResultado" class="w-full bg-kts-dark border border-white/20 rounded-lg px-4 py-3 text-white">
               <option value="">Tipo de resultado</option>
-              <option value="Tiempo">Tiempo</option>
-              <option value="Peso">Peso</option>
+              <option value="Tiempo">Tiempo (ej: 12:45)</option>
+              <option value="Rondas">Rondas + Reps (ej: 5+12)</option>
+              <option value="Reps">Repeticiones</option>
+              <option value="Peso">Peso (kg)</option>
+            </select>
+            <input type="text" id="resultadoBloque" placeholder="Ej: 12:45 o 5+12 o 100kg" class="w-full bg-kts-dark border border-white/20 rounded-lg px-4 py-3 text-white">
+            <input type="text" id="notasResultadoBloque" placeholder="Notas (RX, Scaled, etc)" class="w-full bg-kts-dark border border-white/20 rounded-lg px-4 py-3 text-white">
+            <button onclick="guardarResultadoBloque()" class="w-full bg-kts-gold hover:bg-[#ff8555] text-black font-oswald font-bold py-4 rounded-lg uppercase">
+              <i class="fas fa-save mr-2"></i>Guardar Resultado
+            </button>
+          </div>
+
+          <!-- MODO EJERCICIO -->
+          <div id="modoResultadoEjercicio" class="hidden max-w-md space-y-4">
+            <select id="bloqueParaEjercicio" onchange="cargarEjerciciosDeBloque()" class="w-full bg-kts-dark border border-white/20 rounded-lg px-4 py-3 text-white">
+              <option value="">Seleccionar bloque...</option>
+            </select>
+            <select id="ejercicioResultado" class="w-full bg-kts-dark border border-white/20 rounded-lg px-4 py-3 text-white">
+              <option value="">Seleccionar ejercicio...</option>
+            </select>
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <label class="text-xs text-gray-400 uppercase block mb-1">Series</label>
+                <input type="number" id="resSeries" placeholder="Ej: 5" min="1" class="w-full bg-kts-dark border border-white/20 rounded-lg px-3 py-3 text-white text-center">
+              </div>
+              <div>
+                <label class="text-xs text-gray-400 uppercase block mb-1">Reps</label>
+                <input type="number" id="resReps" placeholder="Ej: 10" min="1" class="w-full bg-kts-dark border border-white/20 rounded-lg px-3 py-3 text-white text-center">
+              </div>
+              <div>
+                <label class="text-xs text-gray-400 uppercase block mb-1">Kg</label>
+                <input type="number" id="resKg" placeholder="Ej: 60" min="0" step="0.5" class="w-full bg-kts-dark border border-white/20 rounded-lg px-3 py-3 text-white text-center">
+              </div>
+            </div>
+            <input type="text" id="notasResultadoEjercicio" placeholder="Notas (RX, Scaled, etc)" class="w-full bg-kts-dark border border-white/20 rounded-lg px-4 py-3 text-white">
+            <button onclick="guardarResultadoEjercicio()" class="w-full bg-kts-gold hover:bg-[#ff8555] text-black font-oswald font-bold py-4 rounded-lg uppercase">
+              <i class="fas fa-save mr-2"></i>Guardar Resultado
+            </button>
+          </div>
+
+          <!-- MODO BENCHMARK -->
+          <div id="modoResultadoBenchmark" class="hidden max-w-md space-y-4">
+            <select id="benchmarkNombre" class="w-full bg-kts-dark border border-white/20 rounded-lg px-4 py-3 text-white">
+              <option value="">Seleccionar benchmark...</option>
+              <optgroup label="Girl WODs">
+                <option value="Fran">Fran (21-15-9 Thruster + Pull-up)</option>
+                <option value="Grace">Grace (30 Clean & Jerk)</option>
+                <option value="Helen">Helen (3 rounds: 400m + 21 KB + 12 Pull-up)</option>
+                <option value="Isabel">Isabel (30 Snatch)</option>
+                <option value="Annie">Annie (50-40-30-20-10 DU + Sit-up)</option>
+                <option value="Cindy">Cindy (AMRAP 20: 5 Pull-up + 10 Push-up + 15 Squat)</option>
+                <option value="Nancy">Nancy (5 rounds: 400m + 15 OHS)</option>
+                <option value="Barbara">Barbara (5 rounds: 20 Pull-up + 30 Push-up + 40 Sit-up + 50 Squat)</option>
+                <option value="Chelsea">Chelsea (EMOM 30: 5 Pull-up + 10 Push-up + 15 Squat)</option>
+                <option value="Karen">Karen (150 Wall Balls)</option>
+                <option value="Kelly">Kelly (5 rounds: 400m + 30 Box Jump + 30 Wall Ball)</option>
+                <option value="Mary">Mary (AMRAP 20: 5 HSPU + 10 Pistol + 15 Pull-up)</option>
+              </optgroup>
+              <optgroup label="Hero WODs">
+                <option value="Murph">Murph (1mi + 100 Pull-up + 200 Push-up + 300 Squat + 1mi)</option>
+                <option value="DT">DT (5 rounds: 12 DL + 9 HPC + 6 Push Jerk)</option>
+                <option value="Jackie">Jackie (1000m Row + 50 Thruster + 30 Pull-up)</option>
+              </optgroup>
+              <optgroup label="Otro">
+                <option value="otro">Otro (escribir nombre)</option>
+              </optgroup>
+            </select>
+            <input type="text" id="benchmarkNombreCustom" placeholder="Nombre del benchmark..." class="hidden w-full bg-kts-dark border border-white/20 rounded-lg px-4 py-3 text-white">
+            <select id="benchmarkTipoRes" class="w-full bg-kts-dark border border-white/20 rounded-lg px-4 py-3 text-white">
+              <option value="Tiempo">Tiempo (ej: 12:45)</option>
+              <option value="Rondas">Rondas + Reps (ej: 5+12)</option>
               <option value="Reps">Repeticiones</option>
             </select>
-            <input type="text" id="resultado" placeholder="Ej: 12:45 o 100kg o 50" class="w-full bg-kts-dark border border-white/20 rounded-lg px-4 py-3 text-white" required>
-            <input type="text" id="notasResultado" placeholder="Notas (RX, Scaled, etc)" class="w-full bg-kts-dark border border-white/20 rounded-lg px-4 py-3 text-white">
-            <button type="submit" class="w-full bg-kts-gold hover:bg-[#ff8555] text-black font-oswald font-bold py-4 rounded-lg uppercase">Guardar Resultado</button>
-          </form>
+            <input type="text" id="benchmarkResultado" placeholder="Ej: 4:52 o 18+5" class="w-full bg-kts-dark border border-white/20 rounded-lg px-4 py-3 text-white">
+            <div class="flex gap-3">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="benchmarkRx" class="w-4 h-4 accent-kts-gold"> <span class="text-white text-sm">RX</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="benchmarkScaled" class="w-4 h-4 accent-kts-gold"> <span class="text-white text-sm">Scaled</span>
+              </label>
+            </div>
+            <input type="text" id="notasResultadoBenchmark" placeholder="Notas adicionales..." class="w-full bg-kts-dark border border-white/20 rounded-lg px-4 py-3 text-white">
+            <button onclick="guardarResultadoBenchmark()" class="w-full bg-kts-gold hover:bg-[#ff8555] text-black font-oswald font-bold py-4 rounded-lg uppercase">
+              <i class="fas fa-save mr-2"></i>Guardar Benchmark
+            </button>
+          </div>
         </div>
 
         <div id="contentAtletaPerfil" class="hidden">
@@ -2579,34 +2676,141 @@ window.cambiarTabAtleta = cambiarTabAtleta;
     }
     window.cargarBloquesEnResultado = cargarBloquesEnResultado;
 
-    // CARGAR RESULTADO ATLETA
-    document.getElementById('formResultado').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      if (!currentWod) {
-        showToast('No hay WOD del día para registrar', 'warning');
-        return;
+    function cambiarModoResultado(modo) {
+      ['bloque','ejercicio','benchmark'].forEach(m => {
+        document.getElementById(`modoResultado${m.charAt(0).toUpperCase()+m.slice(1)}`).classList.add('hidden');
+        const tab = document.getElementById(`tabResultado${m.charAt(0).toUpperCase()+m.slice(1)}`);
+        tab.className = 'flex-1 py-2 px-3 rounded-lg text-sm font-oswald font-bold uppercase transition-all text-gray-400 hover:text-white';
+      });
+      document.getElementById(`modoResultado${modo.charAt(0).toUpperCase()+modo.slice(1)}`).classList.remove('hidden');
+      const tabActivo = document.getElementById(`tabResultado${modo.charAt(0).toUpperCase()+modo.slice(1)}`);
+      tabActivo.className = 'flex-1 py-2 px-3 rounded-lg text-sm font-oswald font-bold uppercase transition-all bg-kts-gold text-black';
+      if (modo === 'ejercicio') cargarBloquesEnSelectEjercicio();
+    }
+    window.cambiarModoResultado = cambiarModoResultado;
+
+    function cargarBloquesEnSelectEjercicio() {
+      const select = document.getElementById('bloqueParaEjercicio');
+      if (!select) return;
+      select.innerHTML = '<option value="">Seleccionar bloque...</option>';
+      const wod = currentWodPersonal;
+      if (wod && wod.bloques) {
+        wod.bloques.forEach((b, i) => {
+          const opt = document.createElement('option');
+          opt.value = i;
+          opt.textContent = b.titulo_bloque || `Bloque ${i+1}`;
+          select.appendChild(opt);
+        });
       }
+    }
 
-      const resultado = {
-        ID_Resultado: `RES_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        ID_Usuario: currentUser.id,
-        ID_WOD: currentWod.id,
-        Fecha: currentWod.Fecha,
-        Tipo_Bloque: document.getElementById('tipoBloque').value,
-        Resultado: document.getElementById('resultado').value,
-        Tipo_Resultado: document.getElementById('tipoResultado').value,
-        Notas: document.getElementById('notasResultado').value || ''
+    function cargarEjerciciosDeBloque() {
+      const idx = document.getElementById('bloqueParaEjercicio').value;
+      const select = document.getElementById('ejercicioResultado');
+      select.innerHTML = '<option value="">Seleccionar ejercicio...</option>';
+      if (idx === '' || !currentWodPersonal) return;
+      const bloque = currentWodPersonal.bloques?.[parseInt(idx)];
+      if (!bloque || !bloque.ejercicios_bloque) return;
+      bloque.ejercicios_bloque.forEach(ej => {
+        const opt = document.createElement('option');
+        opt.value = ej.nombre;
+        opt.textContent = ej.nombre;
+        select.appendChild(opt);
+      });
+    }
+    window.cargarEjerciciosDeBloque = cargarEjerciciosDeBloque;
+
+    async function guardarResultadoBloque() {
+      const bloque = document.getElementById('tipoBloque').value;
+      const tipo = document.getElementById('tipoResultado').value;
+      const valor = document.getElementById('resultadoBloque').value.trim();
+      const notas = document.getElementById('notasResultadoBloque').value.trim();
+      if (!bloque || !tipo || !valor) { showToast('Completá todos los campos', 'warning'); return; }
+      const id = `RES_${Date.now()}_${Math.random().toString(36).substr(2,9)}`;
+      const dato = {
+        ID_Resultado: id, tipo_registro: 'bloque',
+        ID_Usuario: currentUser.id, email: currentUser.Email || currentUser.email,
+        ID_WOD: currentWodPersonal?.id || '', fecha: new Date().toISOString().split('T')[0],
+        Tipo_Bloque: bloque, Tipo_Resultado: tipo, Resultado: valor, Notas: notas,
+        boxId: sessionStorage.getItem('boxId') || ''
       };
-
       try {
         const { collection, doc, setDoc } = window.firestoreFunctions;
-        await setDoc(doc(collection(window.db, 'resultados'), resultado.ID_Resultado), resultado);
-        showToast('✅ Resultado guardado exitosamente', 'success');
-        document.getElementById('formResultado').reset();
-      } catch (error) {
-        console.error('Error guardando resultado:', error);
-        showToast('❌ Error al guardar resultado', 'error');
+        await setDoc(doc(collection(window.db, 'resultados'), id), dato);
+        showToast('✅ Resultado guardado', 'success');
+        document.getElementById('tipoBloque').value = '';
+        document.getElementById('tipoResultado').value = '';
+        document.getElementById('resultadoBloque').value = '';
+        document.getElementById('notasResultadoBloque').value = '';
+      } catch(e) { showToast('❌ Error al guardar', 'error'); }
+    }
+    window.guardarResultadoBloque = guardarResultadoBloque;
+
+    async function guardarResultadoEjercicio() {
+      const bloqueIdx = document.getElementById('bloqueParaEjercicio').value;
+      const ejercicio = document.getElementById('ejercicioResultado').value;
+      const series = document.getElementById('resSeries').value;
+      const reps = document.getElementById('resReps').value;
+      const kg = document.getElementById('resKg').value;
+      const notas = document.getElementById('notasResultadoEjercicio').value.trim();
+      if (!ejercicio || (!series && !reps && !kg)) { showToast('Completá al menos ejercicio y un valor', 'warning'); return; }
+      const id = `RES_${Date.now()}_${Math.random().toString(36).substr(2,9)}`;
+      const dato = {
+        ID_Resultado: id, tipo_registro: 'ejercicio',
+        ID_Usuario: currentUser.id, email: currentUser.Email || currentUser.email,
+        ID_WOD: currentWodPersonal?.id || '', fecha: new Date().toISOString().split('T')[0],
+        ejercicio, series: series || null, reps: reps || null, kg: kg || null, Notas: notas,
+        boxId: sessionStorage.getItem('boxId') || ''
+      };
+      try {
+        const { collection, doc, setDoc } = window.firestoreFunctions;
+        await setDoc(doc(collection(window.db, 'resultados'), id), dato);
+        showToast('✅ Resultado guardado', 'success');
+        document.getElementById('resSeries').value = '';
+        document.getElementById('resReps').value = '';
+        document.getElementById('resKg').value = '';
+        document.getElementById('notasResultadoEjercicio').value = '';
+      } catch(e) { showToast('❌ Error al guardar', 'error'); }
+    }
+    window.guardarResultadoEjercicio = guardarResultadoEjercicio;
+
+    async function guardarResultadoBenchmark() {
+      const selectNombre = document.getElementById('benchmarkNombre').value;
+      const nombreCustom = document.getElementById('benchmarkNombreCustom').value.trim();
+      const nombre = selectNombre === 'otro' ? nombreCustom : selectNombre;
+      const tipo = document.getElementById('benchmarkTipoRes').value;
+      const valor = document.getElementById('benchmarkResultado').value.trim();
+      const rx = document.getElementById('benchmarkRx').checked;
+      const scaled = document.getElementById('benchmarkScaled').checked;
+      const notas = document.getElementById('notasResultadoBenchmark').value.trim();
+      if (!nombre || !valor) { showToast('Completá benchmark y resultado', 'warning'); return; }
+      const id = `RES_${Date.now()}_${Math.random().toString(36).substr(2,9)}`;
+      const dato = {
+        ID_Resultado: id, tipo_registro: 'benchmark',
+        ID_Usuario: currentUser.id, email: currentUser.Email || currentUser.email,
+        fecha: new Date().toISOString().split('T')[0],
+        benchmark: nombre, Tipo_Resultado: tipo, Resultado: valor,
+        rx, scaled, Notas: notas,
+        boxId: sessionStorage.getItem('boxId') || ''
+      };
+      try {
+        const { collection, doc, setDoc } = window.firestoreFunctions;
+        await setDoc(doc(collection(window.db, 'resultados'), id), dato);
+        showToast('✅ Benchmark guardado', 'success');
+        document.getElementById('benchmarkNombre').value = '';
+        document.getElementById('benchmarkResultado').value = '';
+        document.getElementById('benchmarkRx').checked = false;
+        document.getElementById('benchmarkScaled').checked = false;
+        document.getElementById('notasResultadoBenchmark').value = '';
+      } catch(e) { showToast('❌ Error al guardar', 'error'); }
+    }
+    window.guardarResultadoBenchmark = guardarResultadoBenchmark;
+
+    // Mostrar/ocultar campo custom en benchmark
+    document.addEventListener('change', function(e) {
+      if (e.target.id === 'benchmarkNombre') {
+        const custom = document.getElementById('benchmarkNombreCustom');
+        if (custom) custom.classList.toggle('hidden', e.target.value !== 'otro');
       }
     });
 

@@ -1992,7 +1992,7 @@
               </div>
               ${ejercicio.link_video ? `
                 <button onclick="verVideoEjercicio('${ejercicio.nombre.replace(/'/g, "\\'")}', '${ejercicio.link_video}')" class="flex-shrink-0 relative group">
-                  <img src="${obtenerThumbnailUrl(ejercicio.link_video) || ''}"
+                  <img src="${window.obtenerThumbnailUrl ? window.obtenerThumbnailUrl(ejercicio.link_video) || '' : ''}"
                        onerror="this.parentElement.innerHTML='<i class=\\'fas fa-play-circle text-2xl text-kts-gold\\'></i>'"
                        class="w-16 h-12 md:w-20 md:h-14 object-cover rounded-lg border border-white/10 group-hover:border-kts-gold transition-all" />
                   <div class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg group-hover:bg-black/20 transition-all">
@@ -2298,7 +2298,7 @@ window.cambiarTabAtleta = cambiarTabAtleta;
               </div>
               ${ejercicio.link_video ? `
                 <button onclick="verVideoEjercicio('${ejercicio.nombre.replace(/'/g, "\\'")}', '${ejercicio.link_video}')" class="flex-shrink-0 relative group">
-                  <img src="${obtenerThumbnailUrl(ejercicio.link_video) || ''}"
+                  <img src="${window.obtenerThumbnailUrl ? window.obtenerThumbnailUrl(ejercicio.link_video) || '' : ''}"
                        onerror="this.parentElement.innerHTML='<i class=\\'fas fa-play-circle text-2xl text-kts-gold\\'></i>'"
                        class="w-16 h-12 md:w-20 md:h-14 object-cover rounded-lg border border-white/10 group-hover:border-kts-gold transition-all" />
                   <div class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg group-hover:bg-black/20 transition-all">

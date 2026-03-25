@@ -849,11 +849,7 @@
           <h1 class="text-3xl md:text-4xl font-oswald font-bold mb-6">Cargar Resultado</h1>
           <form id="formResultado" class="max-w-md space-y-4">
             <select id="tipoBloque" class="w-full bg-kts-dark border border-white/20 rounded-lg px-4 py-3 text-white" required>
-              <option value="">Seleccionar bloque</option>
-              <option value="Entrada_Calor">Entrada en Calor</option>
-              <option value="Parte_A">Parte A</option>
-              <option value="Parte_B">Parte B</option>
-              <option value="WOD">WOD</option>
+              <option value="">Seleccionar bloque...</option>
             </select>
             <select id="tipoResultado" class="w-full bg-kts-dark border border-white/20 rounded-lg px-4 py-3 text-white" required>
               <option value="">Tipo de resultado</option>
@@ -1913,6 +1909,7 @@
       }
       
       if (view === 'perfil') cargarPerfilAtleta();
+      if (view === 'resultado') cargarBloquesEnResultado();
     }
     window.showAtletaView = showAtletaView;
 
@@ -2552,6 +2549,35 @@ window.cambiarTabAtleta = cambiarTabAtleta;
         showToast('❌ Error al crear usuario', 'error');
       }
     });
+
+    function cargarBloquesEnResultado() {
+      const select = document.getElementById('tipoBloque');
+      if (!select) return;
+      select.innerHTML = '<option value="">Seleccionar bloque...</option>';
+
+      const wod = currentWodPersonal;
+      if (wod && wod.bloques && wod.bloques.length > 0) {
+        wod.bloques.forEach((bloque, idx) => {
+          const option = document.createElement('option');
+          option.value = bloque.titulo_bloque || `Bloque ${idx + 1}`;
+          option.textContent = bloque.titulo_bloque || `Bloque ${idx + 1}`;
+          select.appendChild(option);
+        });
+      } else if (wod) {
+        ['Entrada en Calor', 'Parte A', 'Parte B', 'WOD'].forEach(nombre => {
+          const option = document.createElement('option');
+          option.value = nombre;
+          option.textContent = nombre;
+          select.appendChild(option);
+        });
+      } else {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'No hay WOD para hoy';
+        select.appendChild(option);
+      }
+    }
+    window.cargarBloquesEnResultado = cargarBloquesEnResultado;
 
     // CARGAR RESULTADO ATLETA
     document.getElementById('formResultado').addEventListener('submit', async function(e) {

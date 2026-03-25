@@ -2607,7 +2607,8 @@ window.cambiarTabAtleta = cambiarTabAtleta;
   try {
     const { collection, query, where, getDocs } = window.firestoreFunctions;
     const usuariosRef = collection(window.db, 'usuarios');
-    const q = query(usuariosRef, where('Rol', '==', 'Alumno'));
+    const boxId = window.getCurrentBoxId ? window.getCurrentBoxId() : (sessionStorage.getItem('boxId') || '');
+    const q = query(usuariosRef, where('Rol', '==', 'Alumno'), where('boxId', '==', boxId));
     const querySnapshot = await getDocs(q);
     
     const select = document.getElementById('wodDestinatarioEmail');

@@ -331,8 +331,13 @@ function mostrarModalWodDia(wodData) {
                 ${ejercicio.detalles ? `<div class="text-gray-400 text-xs mt-1">${ejercicio.detalles}</div>` : ''}
               </div>
               ${ejercicio.link_video ? `
-                <button onclick="verVideoEjercicio('${ejercicio.nombre.replace(/'/g, "\\'")}', '${ejercicio.link_video}')" class="text-kts-gold hover:text-[#ff8555] transition-colors flex-shrink-0">
-                  <i class="fas fa-play-circle text-xl md:text-2xl"></i>
+                <button onclick="verVideoEjercicio('${ejercicio.nombre.replace(/'/g, "\\'")}', '${ejercicio.link_video}')" class="flex-shrink-0 relative group">
+                  <img src="${window.obtenerThumbnailUrl ? window.obtenerThumbnailUrl(ejercicio.link_video) || '' : ''}"
+                       onerror="this.parentElement.innerHTML='<i class=\\'fas fa-play-circle text-xl text-kts-gold\\'></i>'"
+                       class="w-16 h-12 object-cover rounded-lg border border-white/10 group-hover:border-kts-gold transition-all" />
+                  <div class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg group-hover:bg-black/20 transition-all">
+                    <i class="fas fa-play text-white text-sm drop-shadow"></i>
+                  </div>
                 </button>
               ` : ''}
             </div>

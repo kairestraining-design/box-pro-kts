@@ -2665,23 +2665,11 @@ function agregarBloque() {
     
     <div class="mb-4">
       <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Agregar Ejercicios</label>
-      <div class="flex gap-2">
-        <select id="selectEjercicio_${bloqueId}" class="flex-1 bg-black border border-white/20 rounded-lg px-4 py-2 text-white text-sm">
-          <option value="">Buscar ejercicio...</option>
-          ${(() => {
-            const cats = [...new Set(ejerciciosDisponibles.map(e => e.categoria))].sort();
-            return cats.map(cat => {
-              const ejsCat = ejerciciosDisponibles
-                .filter(e => e.categoria === cat)
-                .sort((a, b) => a.nombre.localeCompare(b.nombre));
-              return `<optgroup label="${cat}">${ejsCat.map(e => `<option value="${e.id}">${e.nombre}</option>`).join('')}</optgroup>`;
-            }).join('');
-          })()}
-        </select>
-        <button type="button" onclick="agregarEjercicioABloque('${bloqueId}')" class="bg-kts-gold hover:bg-[#ff8555] text-black font-bold px-4 py-2 rounded-lg text-sm">
-          <i class="fas fa-plus"></i>
-        </button>
-      </div>
+      <button type="button" onclick="abrirSelectorEjercicios('${bloqueId}')"
+              class="w-full bg-black border border-white/20 hover:border-kts-gold rounded-lg px-4 py-3 text-gray-400 hover:text-kts-gold text-sm text-left transition-all flex items-center gap-2">
+        <i class="fas fa-search"></i>
+        <span>Buscar y seleccionar ejercicios...</span>
+      </button>
     </div>
     
     <div id="ejercicios_${bloqueId}" class="space-y-2 mb-4"></div>
@@ -2776,6 +2764,205 @@ function agregarEjercicioABloque(bloqueId) {
 }
 
 window.agregarEjercicioABloque = agregarEjercicioABloque;
+
+// MODAL SELECTOR DE EJERCICIOS
+function abrirSelectorEjercicios(bloqueId) {
+  let modal = document.getElementById('modalSelectorEjercicios');
+  if (!modal) {
+    document.body.insertAdjacentHTML('beforeend', `
+      <div id="modalSelectorEjercicios" class="hidden fixed inset-0 bg-black/90 z-[2000] overflow-y-auto">
+        <div class="flex items-start justify-center min-h-screen p-4 pt-8">
+          <div class="bg-kts-card border border-white/10 rounded-2xl w-full max-w-4xl">
+            <div class="flex justify-between items-center p-4 md:p-6 border-b border-white/10">
+              <h2 class="text-xl font-oswald font-bold text-kts-gold">Seleccionar Ejercicios</h2>
+              <button onclick="cerrarSelectorEjercicios()" class="text-gray-400 hover:text-white text-2xl leading-none">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="p-4 md:p-6">
+              <div class="flex flex-col md:flex-row gap-3 mb-4">
+                <input type="text" id="selectorBuscarInput" placeholder="Buscar por nombre..."
+                       oninput="filtrarSelectorEjercicios()"
+                       class="flex-1 bg-black border border-white/20 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-kts-gold">
+                <div class="flex gap-2 flex-wrap">
+                  <button onclick="filtrarSelectorCategoria('todos')" data-cat="todos"
+                          class="selector-cat-btn bg-kts-gold text-black px-3 py-2 rounded-lg text-xs font-bold">Todos</button>
+                  <button onclick="filtrarSelectorCategoria('Gimnasia')" data-cat="Gimnasia"
+                          class="selector-cat-btn bg-black border border-white/20 text-gray-400 px-3 py-2 rounded-lg text-xs font-bold hover:border-kts-gold hover:text-kts-gold transition-all">Gimnasia</button>
+                  <button onclick="filtrarSelectorCategoria('Weightlifting')" data-cat="Weightlifting"
+                          class="selector-cat-btn bg-black border border-white/20 text-gray-400 px-3 py-2 rounded-lg text-xs font-bold hover:border-kts-gold hover:text-kts-gold transition-all">Weightlifting</button>
+                  <button onclick="filtrarSelectorCategoria('Monostructural')" data-cat="Monostructural"
+                          class="selector-cat-btn bg-black border border-white/20 text-gray-400 px-3 py-2 rounded-lg text-xs font-bold hover:border-kts-gold hover:text-kts-gold transition-all">Monostructural</button>
+                </div>
+              </div>
+              <div class="text-xs text-gray-500 mb-3" id="selectorContador">0 ejercicios seleccionados</div>
+              <div id="selectorListaEjercicios" class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[50vh] overflow-y-auto pr-1"></div>
+            </div>
+            <div class="p-4 md:p-6 border-t border-white/10 flex gap-3 justify-end">
+              <button onclick="cerrarSelectorEjercicios()"
+                      class="px-6 py-2 bg-black border border-white/20 text-gray-400 rounded-lg font-oswald text-sm hover:border-white/40 transition-all">
+                CANCELAR
+              </button>
+              <button onclick="confirmarSelectorEjercicios()"
+                      class="px-6 py-2 bg-kts-gold text-black rounded-lg font-oswald font-bold text-sm hover:bg-[#ff8555] transition-all">
+                <i class="fas fa-check mr-1"></i> AGREGAR SELECCIONADOS
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `);
+    modal = document.getElementById('modalSelectorEjercicios');
+  }
+
+  modal.dataset.bloqueId = bloqueId;
+  window._selectorSeleccionados = new Set();
+  document.getElementById('selectorBuscarInput').value = '';
+  filtrarSelectorCategoria('todos');
+  actualizarContadorSelector();
+  modal.classList.remove('hidden');
+}
+
+function cerrarSelectorEjercicios() {
+  document.getElementById('modalSelectorEjercicios')?.classList.add('hidden');
+}
+
+function filtrarSelectorEjercicios() {
+  const texto = document.getElementById('selectorBuscarInput').value.toLowerCase();
+  const catActiva = document.getElementById('modalSelectorEjercicios').dataset.catActiva || 'todos';
+  renderSelectorLista(texto, catActiva);
+}
+
+function filtrarSelectorCategoria(cat) {
+  const modal = document.getElementById('modalSelectorEjercicios');
+  modal.dataset.catActiva = cat;
+  document.querySelectorAll('.selector-cat-btn').forEach(btn => {
+    if (btn.dataset.cat === cat) {
+      btn.className = 'selector-cat-btn bg-kts-gold text-black px-3 py-2 rounded-lg text-xs font-bold';
+    } else {
+      btn.className = 'selector-cat-btn bg-black border border-white/20 text-gray-400 px-3 py-2 rounded-lg text-xs font-bold hover:border-kts-gold hover:text-kts-gold transition-all';
+    }
+  });
+  const texto = document.getElementById('selectorBuscarInput').value.toLowerCase();
+  renderSelectorLista(texto, cat);
+}
+
+function renderSelectorLista(texto, cat) {
+  const lista = document.getElementById('selectorListaEjercicios');
+  const seleccionados = window._selectorSeleccionados || new Set();
+
+  let ejercicios = ejerciciosDisponibles;
+  if (cat && cat !== 'todos') ejercicios = ejercicios.filter(e => e.categoria === cat);
+  if (texto) ejercicios = ejercicios.filter(e => e.nombre.toLowerCase().includes(texto));
+  ejercicios = [...ejercicios].sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+  if (ejercicios.length === 0) {
+    lista.innerHTML = '<p class="text-gray-500 text-sm col-span-2 text-center py-8">No se encontraron ejercicios</p>';
+    return;
+  }
+
+  lista.innerHTML = ejercicios.map(ej => {
+    const checked = seleccionados.has(ej.id);
+    const thumb = ej.link_video && window.obtenerThumbnailUrl ? window.obtenerThumbnailUrl(ej.link_video) : null;
+    return `
+      <label class="flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${checked ? 'border-kts-gold bg-kts-gold/10' : 'border-white/10 bg-black/30 hover:border-white/30'}"
+             onclick="toggleSelectorEjercicio('${ej.id}', this)">
+        ${thumb ? `<img src="${thumb}" class="w-14 h-10 object-cover rounded flex-shrink-0" onerror="this.style.display='none'">` : '<div class="w-14 h-10 bg-black/50 rounded flex-shrink-0 flex items-center justify-center"><i class="fas fa-dumbbell text-gray-600"></i></div>'}
+        <div class="flex-1 min-w-0">
+          <div class="text-white text-sm font-bold truncate">${ej.nombre}</div>
+          <div class="text-gray-500 text-xs">${ej.categoria}</div>
+        </div>
+        <div class="w-5 h-5 rounded border flex-shrink-0 flex items-center justify-center transition-all ${checked ? 'bg-kts-gold border-kts-gold' : 'border-white/30'}">
+          ${checked ? '<i class="fas fa-check text-black text-xs"></i>' : ''}
+        </div>
+      </label>`;
+  }).join('');
+}
+
+function toggleSelectorEjercicio(ejId, labelEl) {
+  const seleccionados = window._selectorSeleccionados || new Set();
+  if (seleccionados.has(ejId)) {
+    seleccionados.delete(ejId);
+    labelEl.className = labelEl.className.replace('border-kts-gold bg-kts-gold/10', 'border-white/10 bg-black/30 hover:border-white/30');
+    const check = labelEl.querySelector('.w-5');
+    if (check) { check.className = check.className.replace('bg-kts-gold border-kts-gold', 'border-white/30'); check.innerHTML = ''; }
+  } else {
+    seleccionados.add(ejId);
+    labelEl.className = labelEl.className.replace('border-white/10 bg-black/30 hover:border-white/30', 'border-kts-gold bg-kts-gold/10');
+    const check = labelEl.querySelector('.w-5');
+    if (check) { check.className = check.className.replace('border-white/30', 'bg-kts-gold border-kts-gold'); check.innerHTML = '<i class="fas fa-check text-black text-xs"></i>'; }
+  }
+  window._selectorSeleccionados = seleccionados;
+  actualizarContadorSelector();
+}
+
+function actualizarContadorSelector() {
+  const n = window._selectorSeleccionados?.size || 0;
+  const el = document.getElementById('selectorContador');
+  if (el) el.textContent = n === 0 ? 'Ningún ejercicio seleccionado' : `${n} ejercicio${n > 1 ? 's' : ''} seleccionado${n > 1 ? 's' : ''}`;
+}
+
+function confirmarSelectorEjercicios() {
+  const modal = document.getElementById('modalSelectorEjercicios');
+  const bloqueId = modal.dataset.bloqueId;
+  const seleccionados = window._selectorSeleccionados || new Set();
+
+  seleccionados.forEach(ejId => {
+    const ejercicio = ejerciciosDisponibles.find(e => e.id === ejId);
+    if (!ejercicio) return;
+    const ejercicioItemId = `ej_${Date.now()}_${Math.random().toString(36).substr(2,5)}`;
+    const ejercicioHTML = `
+      <div id="${ejercicioItemId}" class="bg-black border border-white/10 rounded-lg p-3" data-ejercicio='${JSON.stringify(ejercicio).replace(/'/g, "&#39;")}'>
+        <div class="flex items-start gap-3">
+          <div class="flex-1">
+            <div class="font-bold text-white mb-1">${ejercicio.nombre}</div>
+            <input type="text" placeholder="Detalles (5x5, 3 rounds, etc.)"
+                   class="w-full bg-kts-dark border border-white/20 rounded px-3 py-1 text-white text-sm mb-2"
+                   data-ejercicio-detalles="${ejercicioItemId}">
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="text-xs text-gray-500 block mb-1">% 1RM</label>
+                <input type="text" placeholder="Ej: 75% o N/A"
+                       class="w-full bg-kts-dark border border-white/20 rounded px-2 py-1 text-white text-xs"
+                       data-ejercicio-pct1rm="${ejercicioItemId}">
+              </div>
+              <div>
+                <label class="text-xs text-gray-500 block mb-1">RPE</label>
+                <input type="text" placeholder="Ej: 7 o N/A"
+                       class="w-full bg-kts-dark border border-white/20 rounded px-2 py-1 text-white text-xs"
+                       data-ejercicio-rpe="${ejercicioItemId}">
+              </div>
+              <div>
+                <label class="text-xs text-gray-500 block mb-1">Peso (kg)</label>
+                <input type="text" placeholder="Ej: 60 o N/A"
+                       class="w-full bg-kts-dark border border-white/20 rounded px-2 py-1 text-white text-xs"
+                       data-ejercicio-peso="${ejercicioItemId}">
+              </div>
+            </div>
+            <div class="text-xs text-gray-500 mt-2"><i class="fas fa-tag"></i> ${ejercicio.categoria}</div>
+          </div>
+          <div class="flex flex-col gap-2 flex-shrink-0">
+            <button type="button" onclick="verVideoEjercicio('${ejercicio.nombre.replace(/'/g, "\\'")}', '${ejercicio.link_video}')" class="text-kts-gold hover:text-[#ff8555]">
+              <i class="fas fa-play-circle text-2xl"></i>
+            </button>
+            <button type="button" onclick="eliminarEjercicioDeBloque('${ejercicioItemId}')" class="text-red-500 hover:text-red-400">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+        </div>
+      </div>`;
+    document.getElementById(`ejercicios_${bloqueId}`).insertAdjacentHTML('beforeend', ejercicioHTML);
+  });
+
+  cerrarSelectorEjercicios();
+}
+
+window.abrirSelectorEjercicios = abrirSelectorEjercicios;
+window.cerrarSelectorEjercicios = cerrarSelectorEjercicios;
+window.filtrarSelectorEjercicios = filtrarSelectorEjercicios;
+window.filtrarSelectorCategoria = filtrarSelectorCategoria;
+window.toggleSelectorEjercicio = toggleSelectorEjercicio;
+window.confirmarSelectorEjercicios = confirmarSelectorEjercicios;
 
 // ELIMINAR EJERCICIO
 function eliminarEjercicioDeBloque(ejercicioId) {

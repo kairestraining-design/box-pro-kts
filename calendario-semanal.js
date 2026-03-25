@@ -152,14 +152,18 @@ function renderCalendarioSemanal() {
 
       visibles.forEach(wod => {
         const nombre   = atletasCache[wod.destinatario] || wod.destinatario;
-        // Usar el nombre completo en el tooltip, solo primer nombre en la celda
         const nomCorto = nombre.split(' ')[0];
         html += `
-          <div onclick="abrirVistaPreviaDesdeCalendario('${wod.id}')"
-               class="flex items-center gap-1 py-0.5 px-1 rounded hover:bg-kts-gold/10 cursor-pointer transition-colors group mb-0.5"
-               title="${nombre}">
+          <div class="flex items-center gap-1 py-0.5 px-1 rounded hover:bg-kts-gold/10 transition-colors group mb-0.5">
             <i class="fas fa-user text-kts-gold/40 flex-shrink-0" style="font-size:0.55rem"></i>
-            <span class="text-white/70 group-hover:text-kts-gold truncate transition-colors font-medium" style="font-size:0.7rem">${nomCorto}</span>
+            <span onclick="abrirVistaPreviaDesdeCalendario('${wod.id}')"
+                  class="text-white/70 group-hover:text-kts-gold truncate transition-colors font-medium cursor-pointer flex-1"
+                  style="font-size:0.7rem" title="${nombre}">${nomCorto}</span>
+            <button onclick="editarWodDesdeCalendario('${wod.id}')"
+                    class="opacity-0 group-hover:opacity-100 transition-opacity text-kts-gold/60 hover:text-kts-gold flex-shrink-0"
+                    style="font-size:0.6rem" title="Editar WOD">
+              <i class="fas fa-edit"></i>
+            </button>
           </div>
         `;
       });
@@ -174,12 +178,18 @@ function renderCalendarioSemanal() {
 
     html += `
         </div>
-        ${!esPasado ? `
-        <!-- Botón visible solo en hoy y fechas futuras -->
-        <button onclick="abrirModalCargarWodEnFecha('${fechaStr}')"
-                class="w-full mt-2 bg-kts-gold/20 hover:bg-kts-gold/30 text-kts-gold border border-kts-gold/30 font-bold py-1.5 rounded text-xs uppercase transition-all">
-          <i class="fas fa-plus mr-1"></i> Cargar WOD
-        </button>` : ''}
+        <div class="mt-2 flex flex-col gap-1">
+          ${!esPasado ? `
+          <button onclick="abrirModalCargarWodEnFecha('${fechaStr}')"
+                  class="w-full bg-kts-gold/20 hover:bg-kts-gold/30 text-kts-gold border border-kts-gold/30 font-bold py-1.5 rounded text-xs uppercase transition-all">
+            <i class="fas fa-plus mr-1"></i> Cargar WOD
+          </button>` : ''}
+          ${wodsPersonales.length > 0 && esPasado ? `
+          <button onclick="verHistorialFecha('${fechaStr}')"
+                  class="w-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/10 font-bold py-1.5 rounded text-xs uppercase transition-all">
+            <i class="fas fa-history mr-1"></i> Ver WODs
+          </button>` : ''}
+        </div>
       </div>
     `;
   }
@@ -407,5 +417,31 @@ function iniciarCalendarioSemanal() {
 }
 
 window.iniciarCalendarioSemanal = iniciarCalendarioSemanal;
+
+function editarWodDesdeCalendario(wodId) {
+  const wod = wodsSemanaActual.find(w => w.id === wodId);
+  if (!wod) return;
+  if (typeof window.editarWodExistente === 'function') {
+    window.editarWodExistente(wod);
+  } else if (typeof abrirModalEditarWod === 'function') {
+    abrirModalEditarWod(wod, wodId);
+  }
+}
+window.editarWodDesdeCalendario = editarWodDesdeCalendario;
+
+function verHistorialFecha(fechaStr) {
+  const wodsDelDia = wodsSemanaActual.filter(w => w.fecha === fechaStr);
+  if (wodsDelDia.length === 0) return;
+  if (wodsDelDia.length === 1) {
+    const wod = wodsDelDia[0];
+    const nombre = atletasCache[wod.destinatario] || wod.destinatario;
+    if (typeof abrirVistaPrevia === 'function') abrirVistaPrevia(wod, wod.id, nombre);
+  } else {
+    const wod = wodsDelDia[0];
+    const nombre = atletasCache[wod.destinatario] || wod.destinatario;
+    if (typeof abrirVistaPrevia === 'function') abrirVistaPrevia(wod, wod.id, nombre);
+  }
+}
+window.verHistorialFecha = verHistorialFecha;
 
 console.log('✓ Módulo de Calendario Semanal cargado');

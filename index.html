@@ -1875,6 +1875,7 @@
         verificarCumpleañosCoach();
         verificarBannerAbonosVencidos();
         showCoachView('dashboard');
+        cargarEjerciciosDisponibles();
       } else {
         document.getElementById('atletaScreen').classList.remove('hidden');
         const nombreCompleto = `${user.Nombre || user.nombre || ''} ${user.Apellido || user.apellido || ''}`.trim();

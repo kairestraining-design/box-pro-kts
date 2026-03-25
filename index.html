@@ -7121,7 +7121,8 @@ async function cargarAlumnosParaPlanes() {
   try {
     const { collection, query, where, getDocs } = window.firestoreFunctions;
     const usuariosRef = collection(window.db, 'usuarios');
-    const q = query(usuariosRef, where('Rol', '==', 'Alumno'));
+    const boxId = window.getCurrentBoxId ? window.getCurrentBoxId() : (sessionStorage.getItem('boxId') || '');
+    const q = query(usuariosRef, where('Rol', '==', 'Alumno'), where('boxId', '==', boxId));
     const querySnapshot = await getDocs(q);
     
     const select = document.getElementById('selectorAlumnoPlanes');
@@ -7258,8 +7259,12 @@ async function cargarPlanPersonalizado() {
                   ${ejercicio.detalles ? `<div class="text-gray-400 text-xs mt-0.5">${ejercicio.detalles}</div>` : ''}
                 </div>
                 ${ejercicio.link_video ? `
-                  <button onclick="verVideoEjercicio('${ejercicio.nombre.replace(/'/g, "\\'")}', '${ejercicio.link_video}')" class="text-kts-gold hover:text-[#ff8555] transition-colors flex-shrink-0">
-                    <i class="fas fa-play-circle text-lg"></i>
+                  <button onclick="verVideoEjercicio('${ejercicio.nombre.replace(/'/g, "\\'")}', '${ejercicio.link_video}')"
+                          data-video-url="${ejercicio.link_video}"
+                          class="flex-shrink-0 relative group wod-thumb-btn">
+                    <div class="w-16 h-12 bg-black/50 rounded-lg border border-white/10 flex items-center justify-center">
+                      <i class="fas fa-play-circle text-xl text-kts-gold"></i>
+                    </div>
                   </button>
                 ` : ''}
               </div>
@@ -7286,6 +7291,22 @@ async function cargarPlanPersonalizado() {
     `;
 
     container.innerHTML = html;
+
+    setTimeout(() => {
+      document.querySelectorAll('#contenidoPlanPersonalizado .wod-thumb-btn[data-video-url]').forEach(btn => {
+        const url = btn.getAttribute('data-video-url');
+        const id = window.extraerVideoId ? window.extraerVideoId(url) : null;
+        if (id) {
+          btn.innerHTML = `
+            <div class="relative">
+              <img src="https://img.youtube.com/vi/${id}/mqdefault.jpg" class="w-16 h-12 object-cover rounded-lg border border-white/10 hover:border-kts-gold transition-all" />
+              <div class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg">
+                <i class="fas fa-play text-white text-sm"></i>
+              </div>
+            </div>`;
+        }
+      });
+    }, 50);
 
   } catch (error) {
     console.error('Error cargando plan personalizado:', error);

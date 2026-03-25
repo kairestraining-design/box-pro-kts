@@ -790,7 +790,12 @@ function renderExercises(ejercicios) {
       `<p style="color:rgba(255,255,255,.3);font-size:.85rem;font-family:'Montserrat',sans-serif;">Sin ejercicios</p>`;
     return;
   }
-  el('ktm-exercise-list').innerHTML=ejercicios.map((ej,i)=>`
+  el('ktm-exercise-list').innerHTML=ejercicios.map((ej,i)=>{
+    const badges = [];
+    if (ej.peso_kg)        badges.push(`<span style="color:#F59E0B;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);padding:.15rem .5rem;border-radius:.3rem;font-size:.7rem;">${ej.peso_kg} kg</span>`);
+    if (ej.porcentaje_1rm) badges.push(`<span style="color:#3B82F6;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);padding:.15rem .5rem;border-radius:.3rem;font-size:.7rem;">${ej.porcentaje_1rm}% 1RM</span>`);
+    if (ej.rpe)            badges.push(`<span style="color:#8B5CF6;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);padding:.15rem .5rem;border-radius:.3rem;font-size:.7rem;">RPE ${ej.rpe}</span>`);
+    return `
     <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);
                 border-radius:.6rem;padding:.75rem 1rem;display:flex;align-items:flex-start;gap:.75rem;">
       <div style="min-width:1.4rem;height:1.4rem;background:#FF6B35;border-radius:50%;
@@ -801,13 +806,15 @@ function renderExercises(ejercicios) {
       <div style="flex:1;font-family:'Montserrat',sans-serif;">
         <div style="font-weight:700;color:white;font-size:.9rem;">${ej.nombre}</div>
         ${ej.detalles?`<div style="color:rgba(255,255,255,.45);font-size:.78rem;margin-top:.2rem;">${ej.detalles}</div>`:''}
+        ${badges.length?`<div style="display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.4rem;">${badges.join('')}</div>`:''}
       </div>
       ${ej.link_video?`
         <button onclick="verVideoEjercicio('${ej.nombre.replace(/'/g,"\\'")}','${ej.link_video}')"
                 style="background:none;border:none;color:#FF6B35;cursor:pointer;font-size:1.3rem;padding:.1rem .2rem;">
           <i class="fas fa-play-circle"></i>
         </button>`:''}
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 // ─────────────────────────────────────────────

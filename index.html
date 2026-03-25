@@ -2195,12 +2195,7 @@
     const item = wodsPersonalesHoy[idx];
     if (!item) return;
     // Reutiliza el modal del calendario si existe, o muestra alert básico
-    if (typeof abrirVistaPreviaWod === 'function') {
-      abrirVistaPreviaWod(item.wod, item.nombre);
-    } else {
-      const bloques = (item.wod.bloques || []).map(b => b.titulo_bloque).join(', ');
-      showToast(`${item.nombre} — Bloques: ${bloques || 'Sin bloques'}`, 'info');
-    }
+    abrirVistaPrevia(item.wod, null, item.nombre);
   }
   window.abrirVistaPreviaIndex = abrirVistaPreviaIndex;
 

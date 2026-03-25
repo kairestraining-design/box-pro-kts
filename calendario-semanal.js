@@ -331,12 +331,11 @@ function mostrarModalWodDia(wodData) {
                 ${ejercicio.detalles ? `<div class="text-gray-400 text-xs mt-1">${ejercicio.detalles}</div>` : ''}
               </div>
               ${ejercicio.link_video ? `
-                <button onclick="verVideoEjercicio('${ejercicio.nombre.replace(/'/g, "\\'")}', '${ejercicio.link_video}')" class="flex-shrink-0 relative group">
-                  <img src="${window.obtenerThumbnailUrl ? window.obtenerThumbnailUrl(ejercicio.link_video) || '' : ''}"
-                       onerror="this.parentElement.innerHTML='<i class=\\'fas fa-play-circle text-xl text-kts-gold\\'></i>'"
-                       class="w-16 h-12 object-cover rounded-lg border border-white/10 group-hover:border-kts-gold transition-all" />
-                  <div class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg group-hover:bg-black/20 transition-all">
-                    <i class="fas fa-play text-white text-sm drop-shadow"></i>
+                <button onclick="verVideoEjercicio('${ejercicio.nombre.replace(/'/g, "\\'")}', '${ejercicio.link_video}')"
+                        data-video-url="${ejercicio.link_video}"
+                        class="flex-shrink-0 relative group wod-thumb-btn">
+                  <div class="w-16 h-12 bg-black/50 rounded-lg border border-white/10 flex items-center justify-center">
+                    <i class="fas fa-play-circle text-xl text-kts-gold"></i>
                   </div>
                 </button>
               ` : ''}
@@ -354,6 +353,25 @@ function mostrarModalWodDia(wodData) {
   }
 
   document.getElementById('contenidoModalWodDia').innerHTML = html;
+
+  // Aplicar thumbnails después de renderizar
+  setTimeout(() => {
+    document.querySelectorAll('.wod-thumb-btn[data-video-url]').forEach(btn => {
+      const url = btn.getAttribute('data-video-url');
+      const id = window.extraerVideoId ? window.extraerVideoId(url) : null;
+      if (id) {
+        const thumb = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+        btn.innerHTML = `
+          <div class="relative group">
+            <img src="${thumb}" class="w-16 h-12 object-cover rounded-lg border border-white/10 group-hover:border-kts-gold transition-all" />
+            <div class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg">
+              <i class="fas fa-play text-white text-sm"></i>
+            </div>
+          </div>`;
+      }
+    });
+  }, 50);
+
   modal.classList.remove('hidden');
 }
 

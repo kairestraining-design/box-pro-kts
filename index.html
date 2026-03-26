@@ -1956,7 +1956,7 @@
         verificarBannerAbonosVencidos();
         showCoachView('dashboard');
         cargarEjerciciosDisponibles();
-        escucharMensajesNoLeidosCoach(sessionStorage.getItem('boxId') || '');
+        escucharMensajesNoLeidosCoach(window.getCurrentBoxId ? window.getCurrentBoxId() : '');
       } else {
         document.getElementById('atletaScreen').classList.remove('hidden');
         const nombreCompleto = `${user.Nombre || user.nombre || ''} ${user.Apellido || user.apellido || ''}`.trim();
@@ -2108,7 +2108,7 @@ let _mensajesUnsubscribeAtleta = null;
 
 // ── COACH: iniciar módulo ──
 async function iniciarMensajesCoach() {
-  const boxId = sessionStorage.getItem('boxId') || '';
+  const boxId = window.getCurrentBoxId ? window.getCurrentBoxId() : '';
   const { collection, query, where, getDocs } = window.firestoreFunctions;
 
   const snap = await getDocs(query(collection(window.db, 'usuarios'), where('Rol','==','Alumno'), where('boxId','==',boxId)));
@@ -2179,7 +2179,7 @@ async function enviarMensajeCoach() {
   const texto = input.value.trim();
   if (!texto) return;
   const para = input.dataset.para;
-  const boxId = input.dataset.boxId || sessionStorage.getItem('boxId') || '';
+  const boxId = input.dataset.boxId || (window.getCurrentBoxId ? window.getCurrentBoxId() : '');
   if (!para) { showToast('Seleccioná una conversación', 'warning'); return; }
 
   const coachEmail = currentUser.Email || currentUser.email;
@@ -2200,10 +2200,13 @@ async function iniciarMensajesAtleta() {
   if (_mensajesUnsubscribeAtleta) _mensajesUnsubscribeAtleta();
 
   const atletaEmail = currentUser.Email || currentUser.email;
-  const boxId = sessionStorage.getItem('boxId') || '';
+  const boxId = window.getCurrentBoxId ? window.getCurrentBoxId() : '';
 
   const { collection, query, where, getDocs, orderBy, onSnapshot } = window.firestoreFunctions;
-  const snapCoach = await getDocs(query(collection(window.db, 'usuarios'), where('boxId','==',boxId), where('Rol','==','Coach')));
+  let snapCoach = await getDocs(query(collection(window.db, 'usuarios'), where('boxId','==',boxId), where('Rol','==','Coach')));
+  if (snapCoach.empty) {
+    snapCoach = await getDocs(query(collection(window.db, 'usuarios'), where('boxId','==',boxId), where('Rol','==','coach')));
+  }
 
   if (snapCoach.empty) {
     document.getElementById('chatMensajesAtleta').innerHTML = '<div class="text-center text-gray-500 text-sm mt-auto">No hay coach asignado</div>';
@@ -2241,7 +2244,7 @@ async function enviarMensajeAtleta() {
   const texto = input.value.trim();
   if (!texto) return;
   const coachEmail = input.dataset.coachEmail;
-  const boxId = input.dataset.boxId || sessionStorage.getItem('boxId') || '';
+  const boxId = input.dataset.boxId || (window.getCurrentBoxId ? window.getCurrentBoxId() : '');
   const atletaEmail = currentUser.Email || currentUser.email;
   const convId = generarConvId(coachEmail, atletaEmail, boxId);
   const id = `MSG_${Date.now()}_${Math.random().toString(36).substr(2,6)}`;
@@ -2301,7 +2304,7 @@ window.escucharMensajesNoLeidosCoach = escucharMensajesNoLeidosCoach;
 
 function escucharMensajesNoLeidosAtleta() {
   const atletaEmail = currentUser.Email || currentUser.email;
-  const boxId = sessionStorage.getItem('boxId') || '';
+  const boxId = window.getCurrentBoxId ? window.getCurrentBoxId() : '';
   const { collection, query, where, onSnapshot } = window.firestoreFunctions;
   const q = query(collection(window.db, 'mensajes'), where('para','==',atletaEmail), where('leido','==',false), where('boxId','==',boxId));
   onSnapshot(q, snap => {

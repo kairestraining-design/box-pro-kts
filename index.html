@@ -337,6 +337,11 @@
           <a onclick="mostrarSeguimientoConValidacion(); closeSidebar();" class="flex items-center gap-3 px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 cursor-pointer" id="navCoachSeguimiento">
             <i class="fas fa-chart-line"></i> Seguimiento
           </a>
+          <a onclick="showCoachView('mensajes'); closeSidebar();" class="flex items-center gap-3 px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 cursor-pointer" id="navCoachMensajes">
+            <i class="fas fa-comments w-5"></i>
+            <span>Mensajes</span>
+            <span id="badgeMensajesCoach" class="hidden ml-auto bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">0</span>
+          </a>
           <a onclick="showCoachView('abonos'); closeSidebar();" class="flex items-center gap-3 px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 cursor-pointer" id="navCoachAbonos">
             <i class="fas fa-credit-card"></i> Abonos
           </a>
@@ -720,6 +725,44 @@
           </div>
         </div><!-- /contentCoachAtletas -->
 
+        <!-- ── MENSAJES COACH ───────────────────────────── -->
+        <div id="contentCoachMensajes" class="hidden">
+          <h1 class="text-3xl md:text-4xl font-oswald font-bold mb-6">Mensajes</h1>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 h-[70vh]">
+            <!-- Lista de conversaciones -->
+            <div class="bg-kts-card border border-white/10 rounded-xl overflow-hidden flex flex-col">
+              <div class="p-4 border-b border-white/10">
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Conversaciones</div>
+              </div>
+              <div id="listaConversacionesCoach" class="flex-1 overflow-y-auto"></div>
+            </div>
+            <!-- Ventana de chat -->
+            <div class="md:col-span-2 bg-kts-card border border-white/10 rounded-xl overflow-hidden flex flex-col">
+              <div id="chatHeaderCoach" class="p-4 border-b border-white/10 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-kts-gold/20 flex items-center justify-center">
+                  <i class="fas fa-user text-kts-gold"></i>
+                </div>
+                <div>
+                  <div id="chatNombreCoach" class="font-bold text-white">Seleccioná una conversación</div>
+                  <div id="chatSubtituloCoach" class="text-xs text-gray-500"></div>
+                </div>
+              </div>
+              <div id="chatMensajesCoach" class="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col">
+                <div class="text-center text-gray-600 text-sm mt-auto">Seleccioná un atleta para ver los mensajes</div>
+              </div>
+              <div id="chatInputCoach" class="p-3 border-t border-white/10 flex gap-2">
+                <input type="text" id="inputMensajeCoach" placeholder="Escribí un mensaje..."
+                       onkeydown="if(event.key==='Enter') enviarMensajeCoach()"
+                       class="flex-1 bg-black border border-white/20 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-kts-gold">
+                <button onclick="enviarMensajeCoach()"
+                        class="bg-kts-gold hover:bg-[#ff8555] text-black font-bold px-4 py-2 rounded-lg transition-all">
+                  <i class="fas fa-paper-plane"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- ── GESTIÓN DE ABONOS ───────────────────────────── -->
         <div id="contentCoachAbonos" class="hidden">
           <h1 class="text-3xl md:text-4xl font-oswald font-bold mb-6">Gestión de Abonos</h1>
@@ -806,6 +849,11 @@
           </a>
           <a onclick="showAtletaView('resultado'); closeSidebar();" class="flex items-center gap-3 px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 cursor-pointer" id="navAtletaResultado">
             <i class="fas fa-chart-line"></i> Cargar Resultado
+          </a>
+          <a onclick="showAtletaView('mensajes'); closeSidebar();" class="flex items-center gap-3 px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 cursor-pointer" id="navAtletaMensajes">
+            <i class="fas fa-comments w-5"></i>
+            <span>Mensajes</span>
+            <span id="badgeMensajesAtleta" class="hidden ml-auto bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">0</span>
           </a>
           <a onclick="showAtletaView('perfil'); closeSidebar();" class="flex items-center gap-3 px-6 py-3 text-gray-400 hover:text-white hover:bg-white/5 cursor-pointer" id="navAtletaPerfil">
             <i class="fas fa-user"></i> Mi Perfil
@@ -962,6 +1010,33 @@
             <button onclick="guardarResultadoBenchmark()" class="w-full bg-kts-gold hover:bg-[#ff8555] text-black font-oswald font-bold py-4 rounded-lg uppercase">
               <i class="fas fa-save mr-2"></i>Guardar Benchmark
             </button>
+          </div>
+        </div>
+
+        <div id="contentAtletaMensajes" class="hidden">
+          <h1 class="text-3xl md:text-4xl font-oswald font-bold mb-4">Mensajes</h1>
+          <div class="bg-kts-card border border-white/10 rounded-xl overflow-hidden flex flex-col" style="height:65vh">
+            <div id="chatHeaderAtleta" class="p-4 border-b border-white/10 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-kts-gold/20 flex items-center justify-center">
+                <i class="fas fa-user-tie text-kts-gold"></i>
+              </div>
+              <div>
+                <div class="font-bold text-white">Tu Coach</div>
+                <div id="chatSubtituloAtleta" class="text-xs text-gray-500">Mensajes con tu coach</div>
+              </div>
+            </div>
+            <div id="chatMensajesAtleta" class="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col">
+              <div class="text-center text-gray-600 text-sm mt-auto">Cargando mensajes...</div>
+            </div>
+            <div class="p-3 border-t border-white/10 flex gap-2">
+              <input type="text" id="inputMensajeAtleta" placeholder="Escribí un mensaje..."
+                     onkeydown="if(event.key==='Enter') enviarMensajeAtleta()"
+                     class="flex-1 bg-black border border-white/20 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-kts-gold">
+              <button onclick="enviarMensajeAtleta()"
+                      class="bg-kts-gold hover:bg-[#ff8555] text-black font-bold px-4 py-2 rounded-lg transition-all">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1881,6 +1956,7 @@
         verificarBannerAbonosVencidos();
         showCoachView('dashboard');
         cargarEjerciciosDisponibles();
+        escucharMensajesNoLeidosCoach(sessionStorage.getItem('boxId') || '');
       } else {
         document.getElementById('atletaScreen').classList.remove('hidden');
         const nombreCompleto = `${user.Nombre || user.nombre || ''} ${user.Apellido || user.apellido || ''}`.trim();
@@ -1889,6 +1965,7 @@
         verificarCumpleañosAtleta();
         cargarEstadoAbono();
         cargarWodAtleta();
+        escucharMensajesNoLeidosAtleta();
       }
       // (Salir button lives in each sidebar)
     }
@@ -1939,7 +2016,7 @@
 
     // NAVEGACIÓN COACH
     function showCoachView(view) {
-  ['dashboard', 'wod', 'calendario', 'ejercicios', 'atletas', 'planes', 'seguimiento', 'abonos'].forEach(v => {
+  ['dashboard', 'wod', 'calendario', 'ejercicios', 'atletas', 'planes', 'seguimiento', 'abonos', 'mensajes'].forEach(v => {
     const content = document.getElementById(`contentCoach${v.charAt(0).toUpperCase() + v.slice(1)}`);
     const nav = document.getElementById(`navCoach${v.charAt(0).toUpperCase() + v.slice(1)}`);
     const tab = document.getElementById(`tabCoach${v.charAt(0).toUpperCase() + v.slice(1)}`);
@@ -1977,11 +2054,12 @@
   if (view === 'calendario') iniciarCalendarioSemanal();
   if (view === 'seguimiento') cargarAlumnosSeguimiento();
   if (view === 'abonos') cargarGestionAbonos();
+  if (view === 'mensajes') iniciarMensajesCoach();
 }
 
     // NAVEGACIÓN ATLETA
     function showAtletaView(view) {
-      ['entreno', 'resultado', 'perfil'].forEach(v => {
+      ['entreno', 'resultado', 'perfil', 'mensajes'].forEach(v => {
         const content = document.getElementById(`contentAtleta${v.charAt(0).toUpperCase() + v.slice(1)}`);
         const nav = document.getElementById(`navAtleta${v.charAt(0).toUpperCase() + v.slice(1)}`);
         const tab = document.getElementById(`tabAtleta${v.charAt(0).toUpperCase() + v.slice(1)}`);
@@ -2013,8 +2091,234 @@
       
       if (view === 'perfil') cargarPerfilAtleta();
       if (view === 'resultado') cargarBloquesEnResultado();
+      if (view === 'mensajes') iniciarMensajesAtleta();
     }
     window.showAtletaView = showAtletaView;
+
+// ============================================
+// SISTEMA DE MENSAJERÍA EN TIEMPO REAL
+// NOTA: Crear índice compuesto en Firestore Console para la colección 'mensajes':
+// Campos: convId (ASC) + fecha (ASC)
+// URL: https://console.firebase.google.com/project/box-pro-kts/firestore/indexes
+// ============================================
+
+let _chatUnsubscribe = null;
+let _chatConversacionActiva = null;
+let _mensajesUnsubscribeAtleta = null;
+
+// ── COACH: iniciar módulo ──
+async function iniciarMensajesCoach() {
+  const boxId = sessionStorage.getItem('boxId') || '';
+  const { collection, query, where, getDocs } = window.firestoreFunctions;
+
+  const snap = await getDocs(query(collection(window.db, 'usuarios'), where('Rol','==','Alumno'), where('boxId','==',boxId)));
+  const atletas = [];
+  snap.forEach(d => atletas.push({ email: d.data().Email, nombre: `${d.data().Nombre} ${d.data().Apellido}` }));
+
+  renderListaConversaciones(atletas, boxId);
+  escucharMensajesNoLeidosCoach(boxId);
+}
+window.iniciarMensajesCoach = iniciarMensajesCoach;
+
+function renderListaConversaciones(atletas, boxId) {
+  const lista = document.getElementById('listaConversacionesCoach');
+  if (!atletas.length) {
+    lista.innerHTML = '<p class="text-gray-500 text-sm p-4">No tenés atletas aún</p>';
+    return;
+  }
+  lista.innerHTML = atletas.map(a => `
+    <div onclick="abrirChatCoach('${a.email}', '${a.nombre.replace(/'/g,"\\'")}', '${boxId}')"
+         class="flex items-center gap-3 p-3 hover:bg-white/5 cursor-pointer transition-all border-b border-white/5 group"
+         id="conv_${a.email.replace(/[@.]/g,'_')}">
+      <div class="w-9 h-9 rounded-full bg-kts-gold/20 flex items-center justify-center flex-shrink-0">
+        <i class="fas fa-user text-kts-gold text-sm"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="text-white text-sm font-bold truncate">${a.nombre}</div>
+        <div class="text-gray-500 text-xs truncate">${a.email}</div>
+      </div>
+      <span class="badge-conv-${a.email.replace(/[@.]/g,'_')} hidden bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0"></span>
+    </div>
+  `).join('');
+}
+
+function abrirChatCoach(emailAtleta, nombreAtleta, boxId) {
+  if (_chatUnsubscribe) _chatUnsubscribe();
+  _chatConversacionActiva = emailAtleta;
+
+  document.getElementById('chatNombreCoach').textContent = nombreAtleta;
+  document.getElementById('chatSubtituloCoach').textContent = emailAtleta;
+  document.getElementById('inputMensajeCoach').dataset.para = emailAtleta;
+  document.getElementById('inputMensajeCoach').dataset.boxId = boxId;
+
+  const coachEmail = currentUser.Email || currentUser.email;
+  const convId = generarConvId(coachEmail, emailAtleta, boxId);
+
+  const { collection, query, orderBy, onSnapshot, where } = window.firestoreFunctions;
+  const q = query(collection(window.db, 'mensajes'), where('convId','==',convId), orderBy('fecha','asc'));
+
+  _chatUnsubscribe = onSnapshot(q, snap => {
+    renderMensajesCoach(snap, coachEmail);
+    marcarLeidos(convId, coachEmail);
+  });
+}
+window.abrirChatCoach = abrirChatCoach;
+
+function renderMensajesCoach(snap, miEmail) {
+  const container = document.getElementById('chatMensajesCoach');
+  if (snap.empty) {
+    container.innerHTML = '<div class="text-center text-gray-600 text-sm mt-auto">Sin mensajes aún. ¡Enviá el primero!</div>';
+    return;
+  }
+  container.innerHTML = snap.docs.map(d => renderBurbuja(d.data(), miEmail)).join('');
+  container.scrollTop = container.scrollHeight;
+}
+
+async function enviarMensajeCoach() {
+  const input = document.getElementById('inputMensajeCoach');
+  const texto = input.value.trim();
+  if (!texto) return;
+  const para = input.dataset.para;
+  const boxId = input.dataset.boxId || sessionStorage.getItem('boxId') || '';
+  if (!para) { showToast('Seleccioná una conversación', 'warning'); return; }
+
+  const coachEmail = currentUser.Email || currentUser.email;
+  const convId = generarConvId(coachEmail, para, boxId);
+  const id = `MSG_${Date.now()}_${Math.random().toString(36).substr(2,6)}`;
+
+  const { collection, doc, setDoc } = window.firestoreFunctions;
+  await setDoc(doc(collection(window.db, 'mensajes'), id), {
+    id, convId, de: coachEmail, para, texto,
+    fecha: new Date().toISOString(), leido: false, boxId
+  });
+  input.value = '';
+}
+window.enviarMensajeCoach = enviarMensajeCoach;
+
+// ── ATLETA: iniciar módulo ──
+async function iniciarMensajesAtleta() {
+  if (_mensajesUnsubscribeAtleta) _mensajesUnsubscribeAtleta();
+
+  const atletaEmail = currentUser.Email || currentUser.email;
+  const boxId = sessionStorage.getItem('boxId') || '';
+
+  const { collection, query, where, getDocs, orderBy, onSnapshot } = window.firestoreFunctions;
+  const snapCoach = await getDocs(query(collection(window.db, 'usuarios'), where('boxId','==',boxId), where('Rol','==','Coach')));
+
+  if (snapCoach.empty) {
+    document.getElementById('chatMensajesAtleta').innerHTML = '<div class="text-center text-gray-500 text-sm mt-auto">No hay coach asignado</div>';
+    return;
+  }
+
+  const coach = snapCoach.docs[0].data();
+  const coachEmail = coach.Email;
+  document.getElementById('chatSubtituloAtleta').textContent = `${coach.Nombre} ${coach.Apellido}`;
+  document.getElementById('inputMensajeAtleta').dataset.coachEmail = coachEmail;
+  document.getElementById('inputMensajeAtleta').dataset.boxId = boxId;
+
+  const convId = generarConvId(coachEmail, atletaEmail, boxId);
+  const q = query(collection(window.db, 'mensajes'), where('convId','==',convId), orderBy('fecha','asc'));
+
+  _mensajesUnsubscribeAtleta = onSnapshot(q, snap => {
+    renderMensajesAtleta(snap, atletaEmail);
+    marcarLeidos(convId, atletaEmail);
+  });
+}
+window.iniciarMensajesAtleta = iniciarMensajesAtleta;
+
+function renderMensajesAtleta(snap, miEmail) {
+  const container = document.getElementById('chatMensajesAtleta');
+  if (snap.empty) {
+    container.innerHTML = '<div class="text-center text-gray-600 text-sm mt-auto">Sin mensajes aún.</div>';
+    return;
+  }
+  container.innerHTML = snap.docs.map(d => renderBurbuja(d.data(), miEmail)).join('');
+  container.scrollTop = container.scrollHeight;
+}
+
+async function enviarMensajeAtleta() {
+  const input = document.getElementById('inputMensajeAtleta');
+  const texto = input.value.trim();
+  if (!texto) return;
+  const coachEmail = input.dataset.coachEmail;
+  const boxId = input.dataset.boxId || sessionStorage.getItem('boxId') || '';
+  const atletaEmail = currentUser.Email || currentUser.email;
+  const convId = generarConvId(coachEmail, atletaEmail, boxId);
+  const id = `MSG_${Date.now()}_${Math.random().toString(36).substr(2,6)}`;
+
+  const { collection, doc, setDoc } = window.firestoreFunctions;
+  await setDoc(doc(collection(window.db, 'mensajes'), id), {
+    id, convId, de: atletaEmail, para: coachEmail, texto,
+    fecha: new Date().toISOString(), leido: false, boxId
+  });
+  input.value = '';
+}
+window.enviarMensajeAtleta = enviarMensajeAtleta;
+
+// ── HELPERS ──
+function generarConvId(emailA, emailB, boxId) {
+  const sorted = [emailA, emailB].sort().join('_').replace(/[@.]/g,'_');
+  return `${boxId}_${sorted}`;
+}
+
+function renderBurbuja(msg, miEmail) {
+  const esMio = msg.de === miEmail;
+  const hora = msg.fecha ? new Date(msg.fecha).toLocaleTimeString('es-AR', {hour:'2-digit',minute:'2-digit'}) : '';
+  return `
+    <div class="flex ${esMio ? 'justify-end' : 'justify-start'} mb-1">
+      <div class="max-w-[75%] px-4 py-2 rounded-2xl ${esMio ? 'bg-kts-gold text-black rounded-br-sm' : 'bg-white/10 text-white rounded-bl-sm'}">
+        <div class="text-sm">${msg.texto}</div>
+        <div class="text-xs mt-1 ${esMio ? 'text-black/50 text-right' : 'text-gray-500'}">${hora}</div>
+      </div>
+    </div>`;
+}
+
+async function marcarLeidos(convId, miEmail) {
+  const { collection, query, where, getDocs, doc, updateDoc } = window.firestoreFunctions;
+  const snap = await getDocs(query(
+    collection(window.db, 'mensajes'),
+    where('convId','==',convId),
+    where('para','==',miEmail),
+    where('leido','==',false)
+  ));
+  snap.forEach(d => updateDoc(doc(window.db, 'mensajes', d.id), { leido: true }));
+}
+
+function escucharMensajesNoLeidosCoach(boxId) {
+  const coachEmail = currentUser.Email || currentUser.email;
+  const { collection, query, where, onSnapshot } = window.firestoreFunctions;
+  const q = query(collection(window.db, 'mensajes'), where('para','==',coachEmail), where('leido','==',false), where('boxId','==',boxId));
+  onSnapshot(q, snap => {
+    const badge = document.getElementById('badgeMensajesCoach');
+    const n = snap.size;
+    if (badge) {
+      badge.textContent = n;
+      badge.classList.toggle('hidden', n === 0);
+    }
+  });
+}
+window.escucharMensajesNoLeidosCoach = escucharMensajesNoLeidosCoach;
+
+function escucharMensajesNoLeidosAtleta() {
+  const atletaEmail = currentUser.Email || currentUser.email;
+  const boxId = sessionStorage.getItem('boxId') || '';
+  const { collection, query, where, onSnapshot } = window.firestoreFunctions;
+  const q = query(collection(window.db, 'mensajes'), where('para','==',atletaEmail), where('leido','==',false), where('boxId','==',boxId));
+  onSnapshot(q, snap => {
+    const badge = document.getElementById('badgeMensajesAtleta');
+    const n = snap.size;
+    if (badge) {
+      badge.textContent = n;
+      badge.classList.toggle('hidden', n === 0);
+    }
+    if (n > 0) mostrarToastMensaje(snap.docs[snap.docs.length-1].data());
+  });
+}
+window.escucharMensajesNoLeidosAtleta = escucharMensajesNoLeidosAtleta;
+
+function mostrarToastMensaje(msg) {
+  showToast(`💬 Nuevo mensaje de tu coach`, 'info');
+}
 
     // CARGAR WOD
     async function cargarWod() {

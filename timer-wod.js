@@ -178,37 +178,40 @@ function ensureModal() {
           #ktm-body              { flex-direction:column !important; }
           #ktm-vert-sep          { width:100% !important; height:1px !important; }
 
-          /* Timer side: altura fija reducida ~38% de la pantalla */
-          #ktm-timer-side        { flex:0 0 38vh !important; width:100% !important;
-                                    padding:.25rem .75rem !important; overflow:hidden !important;
+          /* Timer side: altura aumentada ~52% de la pantalla */
+          #ktm-timer-side        { flex:0 0 52vh !important; width:100% !important;
+                                    padding:.5rem 1rem !important; overflow:hidden !important;
                                     justify-content:center !important; }
 
-          /* Ejercicios: ocupa el resto de la pantalla con scroll */
+          /* Ejercicios: ocupa el resto */
           #ktm-exercises-side    { flex:1 1 0 !important; width:100% !important;
                                     padding:.75rem 1rem 3rem !important; min-height:0 !important;
                                     -webkit-overflow-scrolling:touch; }
 
-          /* Círculo más pequeño */
-          #ktm-circle-wrap       { width:100px !important; height:100px !important; }
-          #ktm-time              { font-size:1.7rem !important; letter-spacing:1px !important; }
-          #ktm-round-info        { font-size:.6rem !important; }
-          #ktm-tabata-phase      { font-size:.7rem !important; }
+          /* Círculo más grande */
+          #ktm-circle-wrap       { width:155px !important; height:155px !important; }
+          #ktm-time              { font-size:2.8rem !important; letter-spacing:2px !important; }
+          #ktm-round-info        { font-size:.75rem !important; }
+          #ktm-tabata-phase      { font-size:.9rem !important; }
 
-          /* Controles compactos en una sola fila */
-          #ktm-controls          { margin-top:.25rem !important; gap:.4rem !important; flex-wrap:nowrap !important; }
-          #ktm-btn-reset         { padding:.3rem .7rem !important; font-size:.75rem !important; }
-          #ktm-btn-start         { padding:.3rem .9rem !important; font-size:.8rem !important; }
-          #ktm-btn-terminar      { padding:.3rem .6rem !important; font-size:.7rem !important; }
+          /* Controles más grandes */
+          #ktm-controls          { margin-top:.5rem !important; gap:.5rem !important; flex-wrap:nowrap !important; }
+          #ktm-btn-reset         { padding:.5rem 1rem !important; font-size:.85rem !important; }
+          #ktm-btn-start         { padding:.5rem 1.4rem !important; font-size:.95rem !important; }
+          #ktm-btn-terminar      { padding:.5rem .9rem !important; font-size:.8rem !important; }
 
-          /* Timer total compacto */
-          #ktm-total-wrap        { margin-top:.15rem !important; }
-          #ktm-total-label       { font-size:.5rem !important; }
-          #ktm-total-time        { font-size:.85rem !important; }
+          /* Timer total */
+          #ktm-total-wrap        { margin-top:.3rem !important; }
+          #ktm-total-label       { font-size:.55rem !important; }
+          #ktm-total-time        { font-size:1.1rem !important; }
 
-          #ktm-finished          { font-size:.85rem !important; bottom:.2rem !important; }
+          #ktm-finished          { font-size:1rem !important; bottom:.3rem !important; }
           #ktm-progress-bar      { padding:.3rem .5rem .4rem; }
           .ktm-seg               { height:4px; }
           .ktm-seg-label         { display:none; }
+
+          /* Ejercicios del bloque más grandes */
+          #ktm-exercises-side > div:first-child { font-size:.75rem !important; letter-spacing:2px !important; }
         }
       </style>
 
@@ -244,12 +247,12 @@ function ensureModal() {
             </svg>
             <div id="ktm-time-overlay">
               <div id="ktm-time">00:00</div>
-              <div id="ktm-round-info" style="font-size:.85rem;letter-spacing:2px;color:rgba(255,255,255,.5);display:none;">
-                RONDA <span id="ktm-round-cur" style="color:#FF6B35;font-weight:bold;"></span>
-                / <span id="ktm-round-tot"></span>
-              </div>
               <div id="ktm-tabata-phase" style="font-size:1.2rem;letter-spacing:3px;display:none;"></div>
             </div>
+          </div>
+          <div id="ktm-round-info" style="font-size:.85rem;letter-spacing:2px;color:rgba(255,255,255,.5);display:none;text-align:center;margin-top:.3rem;">
+            RONDA <span id="ktm-round-cur" style="color:#FF6B35;font-weight:bold;"></span>
+            / <span id="ktm-round-tot"></span>
           </div>
 
           <!-- Timer total del WOD -->
@@ -804,8 +807,8 @@ function renderExercises(ejercicios) {
         ${i+1}
       </div>
       <div style="flex:1;font-family:'Montserrat',sans-serif;">
-        <div style="font-weight:700;color:white;font-size:.9rem;">${ej.nombre}</div>
-        ${ej.detalles?`<div style="color:rgba(255,255,255,.45);font-size:.78rem;margin-top:.2rem;">${ej.detalles}</div>`:''}
+        <div style="font-weight:700;color:white;font-size:1rem;">${ej.nombre}</div>
+        ${ej.detalles?`<div style="color:rgba(255,255,255,.45);font-size:.88rem;margin-top:.2rem;">${ej.detalles}</div>`:''}
         ${badges.length?`<div style="display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.4rem;">${badges.join('')}</div>`:''}
       </div>
       ${ej.link_video?`

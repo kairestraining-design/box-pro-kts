@@ -1956,7 +1956,9 @@
         verificarBannerAbonosVencidos();
         showCoachView('dashboard');
         cargarEjerciciosDisponibles();
+        suscribirWebPush();
         escucharMensajesNoLeidosCoach(window.getCurrentBoxId ? window.getCurrentBoxId() : '');
+        escucharNotifPendientes();
       } else {
         document.getElementById('atletaScreen').classList.remove('hidden');
         const nombreCompleto = `${user.Nombre || user.nombre || ''} ${user.Apellido || user.apellido || ''}`.trim();
@@ -1965,7 +1967,9 @@
         verificarCumpleañosAtleta();
         cargarEstadoAbono();
         cargarWodAtleta();
+        suscribirWebPush();
         escucharMensajesNoLeidosAtleta();
+        escucharNotifPendientes();
       }
       // (Salir button lives in each sidebar)
     }
@@ -2191,6 +2195,8 @@ async function enviarMensajeCoach() {
     id, convId, de: coachEmail, para, texto,
     fecha: new Date().toISOString(), leido: false, boxId
   });
+  // Notificar al destinatario
+  await guardarNotifPendiente(para, `Mensaje de tu coach`, texto.substring(0,80));
   input.value = '';
 }
 window.enviarMensajeCoach = enviarMensajeCoach;
@@ -2254,6 +2260,8 @@ async function enviarMensajeAtleta() {
     id, convId, de: atletaEmail, para: coachEmail, texto,
     fecha: new Date().toISOString(), leido: false, boxId
   });
+  // Notificar al coach
+  await guardarNotifPendiente(coachEmail, `Mensaje de ${currentUser.Nombre || atletaEmail}`, texto.substring(0,80));
   input.value = '';
 }
 window.enviarMensajeAtleta = enviarMensajeAtleta;
@@ -2322,6 +2330,83 @@ window.escucharMensajesNoLeidosAtleta = escucharMensajesNoLeidosAtleta;
 function mostrarToastMensaje(msg) {
   showToast(`💬 Nuevo mensaje de tu coach`, 'info');
 }
+
+// WEB PUSH - solicitar permiso y suscribir
+async function suscribirWebPush() {
+  try {
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) return null;
+
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') return null;
+
+    const reg = await navigator.serviceWorker.ready;
+    const VAPID_PUBLIC_KEY = 'BHgRckEoDXLsbs0XsaW8-sa00zIvi8fkFxWp2lMh5oYoUKwkkpp8N4MIsqimv1ua7JUIwoQ0-1UeXyC4ycYkU4Q';
+
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+    });
+
+    // Guardar suscripción en Firestore
+    const email = currentUser.Email || currentUser.email;
+    const { collection, doc, setDoc } = window.firestoreFunctions;
+    await setDoc(doc(collection(window.db, 'push_tokens'), email.replace(/[@.]/g,'_')), {
+      email,
+      subscription: JSON.stringify(sub),
+      fecha: new Date().toISOString()
+    });
+
+    console.log('✓ Web Push suscrito');
+    return sub;
+  } catch(e) {
+    console.error('Error suscribiendo push:', e);
+    return null;
+  }
+}
+window.suscribirWebPush = suscribirWebPush;
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
+}
+
+// Guardar notificación pendiente en Firestore para que el destinatario la reciba via onSnapshot
+async function guardarNotifPendiente(para, titulo, cuerpo) {
+  try {
+    const { collection, doc, setDoc } = window.firestoreFunctions;
+    const id = `NOTIF_${Date.now()}_${Math.random().toString(36).substr(2,6)}`;
+    await setDoc(doc(collection(window.db, 'notif_pendientes'), id), {
+      para, titulo, cuerpo,
+      fecha: new Date().toISOString(),
+      enviado: false
+    });
+  } catch(e) {}
+}
+
+function escucharNotifPendientes() {
+  const email = currentUser.Email || currentUser.email;
+  const { collection, query, where, onSnapshot, doc, updateDoc } = window.firestoreFunctions;
+  const q = query(collection(window.db, 'notif_pendientes'), where('para','==',email), where('enviado','==',false));
+  onSnapshot(q, snap => {
+    snap.docs.forEach(async d => {
+      const data = d.data();
+      // Mostrar notificación del sistema si la app está en segundo plano
+      if (document.hidden && Notification.permission === 'granted') {
+        new Notification(data.titulo, {
+          body: data.cuerpo,
+          icon: '/icons/icon-192.png'
+        });
+      }
+      // Marcar como enviado
+      await updateDoc(doc(window.db, 'notif_pendientes', d.id), { enviado: true });
+    });
+  });
+}
+window.escucharNotifPendientes = escucharNotifPendientes;
 
     // CARGAR WOD
     async function cargarWod() {

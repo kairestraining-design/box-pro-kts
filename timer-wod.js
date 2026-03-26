@@ -189,9 +189,9 @@ function ensureModal() {
                                     -webkit-overflow-scrolling:touch; }
 
           /* Círculo más grande */
-          #ktm-circle-wrap       { width:155px !important; height:155px !important; }
-          #ktm-time              { font-size:2.8rem !important; letter-spacing:2px !important; }
-          #ktm-round-info        { font-size:.75rem !important; }
+          #ktm-circle-wrap       { width:190px !important; height:190px !important; }
+          #ktm-time              { font-size:3.4rem !important; letter-spacing:2px !important; }
+          #ktm-round-info        { font-size:.95rem !important; }
           #ktm-tabata-phase      { font-size:.9rem !important; }
 
           /* Controles más grandes */
@@ -202,8 +202,8 @@ function ensureModal() {
 
           /* Timer total */
           #ktm-total-wrap        { margin-top:.3rem !important; }
-          #ktm-total-label       { font-size:.55rem !important; }
-          #ktm-total-time        { font-size:1.1rem !important; }
+          #ktm-total-label       { font-size:.65rem !important; }
+          #ktm-total-time        { font-size:1.35rem !important; }
 
           #ktm-finished          { font-size:1rem !important; bottom:.3rem !important; }
           #ktm-progress-bar      { padding:.3rem .5rem .4rem; }
@@ -211,7 +211,7 @@ function ensureModal() {
           .ktm-seg-label         { display:none; }
 
           /* Ejercicios del bloque más grandes */
-          #ktm-exercises-side > div:first-child { font-size:.75rem !important; letter-spacing:2px !important; }
+          #ktm-exercises-side > div:first-child { font-size:.85rem !important; letter-spacing:2px !important; }
         }
       </style>
 
@@ -807,8 +807,8 @@ function renderExercises(ejercicios) {
         ${i+1}
       </div>
       <div style="flex:1;font-family:'Montserrat',sans-serif;">
-        <div style="font-weight:700;color:white;font-size:1rem;">${ej.nombre}</div>
-        ${ej.detalles?`<div style="color:rgba(255,255,255,.45);font-size:.88rem;margin-top:.2rem;">${ej.detalles}</div>`:''}
+        <div style="font-weight:700;color:white;font-size:1.05rem;">${ej.nombre}</div>
+        ${ej.detalles?`<div style="color:rgba(255,255,255,.45);font-size:.95rem;margin-top:.2rem;">${ej.detalles}</div>`:''}
         ${badges.length?`<div style="display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.4rem;">${badges.join('')}</div>`:''}
       </div>
       ${ej.link_video?`

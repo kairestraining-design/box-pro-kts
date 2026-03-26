@@ -1,4 +1,4 @@
-const CACHE_NAME = 'box-pro-kts-v1';
+const CACHE_NAME = 'box-pro-kts-v3';
 const urlsToCache = ['/', '/index.html', '/timer-wod.js', '/gestion-clases.js', '/calendario-atleta.js', '/calendario-semanal.js'];
 
 self.addEventListener('install', e => {

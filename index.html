@@ -1799,7 +1799,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, collection, query, where, getDocs, setDoc, addDoc, deleteDoc, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs, setDoc, addDoc, deleteDoc, updateDoc, writeBatch, onSnapshot, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCw0MamfiPc_546XzjDciz9A__7lbFnK2k",
@@ -1813,7 +1813,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     window.db = db;
-    window.firestoreFunctions = { doc, getDoc, collection, query, where, getDocs, setDoc, addDoc, deleteDoc, updateDoc, writeBatch };
+    window.firestoreFunctions = { doc, getDoc, collection, query, where, getDocs, setDoc, addDoc, deleteDoc, updateDoc, writeBatch, onSnapshot, orderBy, serverTimestamp };
 
     console.log('✓ Firebase inicializado');
 
